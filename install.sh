@@ -28,6 +28,17 @@ cleanup() {
   rm -r ${TEMP_DIR}
 }
 
+# metadata "file"
+metadata() {
+  file="${1}"
+  echo "Downloading ${file}"
+  if [[ -f ${file} ]]; then
+    echo "${file} already exists"
+  else
+    curl --progress-bar -o "${file}" "https://fluence-dao.s3.eu-west-1.amazonaws.com/${file}"
+  fi
+}
+
 # setup "name" "url"
 setup() {
   name="$1"
@@ -39,6 +50,7 @@ setup() {
   # move all executables to BIN_DIR
   [[ ! -d "${BIN_DIR}" ]] && mkdir "${BIN_DIR}" -p
   find "${TEMP_DIR}" -type f -exec file {} + | grep 'executable' | grep -v 'shell script' | cut -d: -f1 | xargs -I {} mv {} "${BIN_DIR}"
+  chmod +x "${BIN_DIR}"/*
 }
 
 case "$OS" in
@@ -63,10 +75,5 @@ esac
 setup age "${AGE_URL}"
 setup sha3sum "${SHA3SUM_URL}"
 
-echo "Downloading metadata file"
-if [[ -f metadata.bin ]]; then
-  echo "Metadata file already exists"
-  exit 0
-else
-  curl --progress-bar -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
-fi
+metadata metadata.bin
+metadata metadata.json
