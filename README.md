@@ -37,6 +37,10 @@
 2. Install dependencies
 
    > `./install_for_sh.sh`
+   
+   > `python3 -m venv claim-venv`
+
+   > `source claim-venv/bin/activate`
 
    > `pip3 install -r python/requirements.txt`
 
