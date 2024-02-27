@@ -19,3 +19,6 @@ tar xf age.tar.gz
 sudo mv age/age age/age-keygen $BIN_DIR
 rm -f age.tar.gz
 rm -rf age
+
+curl -o metadata.json https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.json
+curl -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin

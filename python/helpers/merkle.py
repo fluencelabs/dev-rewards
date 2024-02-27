@@ -38,7 +38,7 @@ class MerkleTree:
     def _create_leafs(self, accounts):
         leafs = []
         for i, account in enumerate(accounts):
-            leaf = Web3.solidityKeccak(
+            leaf = Web3.solidity_keccak(
                 ["uint32", "bytes20"],
                 [
                     i,

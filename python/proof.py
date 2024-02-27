@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-import argparse
 import base64
 import json
 import os
@@ -36,7 +34,7 @@ Ethereum wallet address is necessary to generate a proof that you will send thro
 Enter the ethereum address to which you plan to receive the airdrop:
 ''')
     
-    if not Web3.isAddress(ethereumAddress):
+    if not Web3.is_address(ethereumAddress):
         error("You entered an incorrect Ethereum address")
 
     return (username, ethereumAddress)
