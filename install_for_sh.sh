@@ -14,7 +14,7 @@ check_program_in_path() {
   if ! type -p "${program}" &>/dev/null; then
       printf '%s\n' "error: ${program} is not installed."
       printf '%s\n' "You should run install script first"
-      printf '%s\n' "or use your package manager to instal it."
+      printf '%s\n' "or use your package manager to install it."
       exit 1
   fi
 }
@@ -66,7 +66,7 @@ setup sha3sum "${SHA3SUM_URL}"
 
 echo "Downloading metadata file"
 if [[ -f metadata.bin ]]; then
-  echo "Metadata file already exist"
+  echo "Metadata file already exists"
   exit 0
 else
   curl --progress-bar -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
