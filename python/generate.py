@@ -23,6 +23,7 @@ import cryptography.exceptions as exceptions
 DEFAULT_OUTPUT_DIR = os.path.join(os. getcwd(), "output")
 DEFAULT_FRACTION = 1000
 
+
 @dataclasses.dataclass
 class User:
     name: str
@@ -39,7 +40,7 @@ def validate_key(key: str):
         return False
     except ValueError as e:
         return False
-    
+
     if isinstance(public_key, rsa.RSAPublicKey):
         if public_key.key_size < 2048:
             return False
@@ -49,6 +50,7 @@ def validate_key(key: str):
     else:
         return False
 
+
 def read_csv(filename):
     users = []
     with open(filename, 'r') as csvfile:
@@ -57,12 +59,14 @@ def read_csv(filename):
         totalInvalidCount = 0
         totalSkippedCount = 0
         for row in reader:
-            print(f"Progress: {i} valid, {totalSkippedCount} skipped, {totalInvalidCount} invalid keys", end="\r")
-            
+            print(
+                f"Progress: {i} valid, {totalSkippedCount} skipped, {totalInvalidCount} invalid keys",
+                end="\r")
+
             if len(row) != 2:
                 totalSkippedCount += 1
                 continue
-            
+
             is_valid = validate_key(row[1])
             if not is_valid:
                 totalInvalidCount += 1
@@ -70,10 +74,11 @@ def read_csv(filename):
 
             i += 1
             users.append(User(name=row[0], pubKey=row[1]))
-            
+
     print(f"Total skipped keys: {totalSkippedCount}")
     print(f"Total invalid keys: {totalInvalidCount}")
     return users
+
 
 def gen_eth_keys(users):
     addresses = []
@@ -84,11 +89,11 @@ def gen_eth_keys(users):
     for user in users:
         username = user.name
         privateKey = privateKeys.get(username)
-        
+
         print(f"Progress: {(i / fraction001 / 10):.2f}%", end="\r")
-                  
+
         i += 1
-        if privateKey != None:
+        if privateKey is not None:
             continue
 
         privateKey = "0x" + secrets.token_hex(32)
@@ -97,9 +102,18 @@ def gen_eth_keys(users):
 
     return addresses, privateKeys
 
+
 def encrypt_data_with_ssh(data, sshPubKey):
-    result = subprocess.run(["age", "--encrypt", "--recipient", sshPubKey,
-                            "-o", "-", "--armor"], capture_output=True, input=data.encode())
+    result = subprocess.run(["age",
+                             "--encrypt",
+                             "--recipient",
+                             sshPubKey,
+                             "-o",
+                             "-",
+                             "--armor"],
+                            capture_output=True,
+                            input=data.encode(),
+                            env=env)
     if result.returncode != 0:
         raise OSError(result.stderr)
     return result.stdout.decode()
@@ -111,7 +125,8 @@ def random_sort(addresses):
     for i in range(length):
         j = secrets.randbelow(length)
         addresses[i], addresses[j] = addresses[j], addresses[i]
-        
+
+
 def encrypt_for_standart_output(users, privateKeys):
     encryptedKeys: dict[str, dict[str, str]] = {}
 
@@ -130,9 +145,9 @@ def encrypt_for_standart_output(users, privateKeys):
             encrypted_data = encrypt_data_with_ssh(
                 privateKey, sshPubKey
             )
-            if not username in encryptedKeys:
+            if username not in encryptedKeys:
                 encryptedKeys[username] = {}
-            
+
             encryptedKeys[username][sshPubKey] = encrypted_data
         except OSError as e:
             totalFailedCount += 1
@@ -160,7 +175,7 @@ def encrypt_for_sh_output(tree, users, addresses, privateKeys):
         print(f"Progress: {(i / fraction001 / 10):.2f}%", end="\r")
         i += 1
 
-        if not username in encryptedKeys:
+        if username not in encryptedKeys:
             encryptedKeys[username] = []
 
         index = indexes[address]
@@ -178,10 +193,11 @@ def encrypt_for_sh_output(tree, users, addresses, privateKeys):
 
         try:
             encryptedData = encrypt_data_with_ssh(
-            f"{index},{address},{openSSLPrivKey},{proof}", sshPubKey)\
-            .replace("-----BEGIN AGE ENCRYPTED FILE-----", "")\
-            .replace("-----END AGE ENCRYPTED FILE-----", "")
-            encryptedKeys[username].append(base64.b64decode(encryptedData).hex())
+                f"{index},{address},{openSSLPrivKey},{proof}", sshPubKey)\
+                .replace("-----BEGIN AGE ENCRYPTED FILE-----", "")\
+                .replace("-----END AGE ENCRYPTED FILE-----", "")
+            encryptedKeys[username].append(
+                base64.b64decode(encryptedData).hex())
         except OSError as e:
             print(f"Failed to encrypt key for {username} with {sshPubKey}")
             print(e)
@@ -192,7 +208,7 @@ def encrypt_for_sh_output(tree, users, addresses, privateKeys):
 def write_output(filePath, root, addresses, encryptedKeys):
     metadata = Metadata(root=root, addresses=addresses,
                         encryptedKeys=encryptedKeys)
-    
+
     with open(filePath, 'w') as f:
         json.dump(metadata.to_dict(), f, ensure_ascii=False, indent=4)
 
@@ -225,7 +241,7 @@ def main():
 
     print(f"Generating keys for {len(users)} users")
     addresses, privateKeys = gen_eth_keys(users)
-    
+
     print(f"Suffling addresses")
     random_sort(addresses)
 
@@ -236,7 +252,7 @@ def main():
                  encrypt_for_standart_output(users, privateKeys))
     write_output_for_sh_script(shOutputFILEPath, encrypt_for_sh_output(
         tree, users, addresses, privateKeys))
-    
+
     print(f"Metadata file written to {metadataFilePath}")
 
 

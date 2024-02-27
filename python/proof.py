@@ -12,28 +12,36 @@ from helpers.common import Metadata
 from helpers.merkle import MerkleTree
 
 SSH_KEYS_DIR = os.path.join(Path.home(), ".ssh")
+BIN_DIR= os.path.join(os.getcwd(), "./bin")
+
+# Set PATH for python to find age
+env = os.environ.copy()
+env["PATH"] = BIN_DIR + os.pathsep + env["PATH"]
 
 def error(msg):
     print(f"\033[31m{msg}\033[0m")
     sys.exit(1)
 
+
 def parse_metadata(filename):
     with open(filename, 'r') as f:
         return Metadata.from_json(f.read())
 
+
 def ask_user_info(metadata):
-    username = input("Enter your github username so we can check if you are participating in the airdrop:\n")
-    if not username in metadata.encryptedKeys:
+    username = input(
+        "Enter your github username so we can check if you are participating in the airdrop:\n")
+    if username not in metadata.encryptedKeys:
         error("This Github account is not eligible for claiming")
 
     ethereumAddress = input(
-'''
+        '''
 Ethereum wallet address is necessary to generate a proof that you will send through our web page.
 \033[33mImportant notice: you need to make a claim transaction from the entered address!\033[0m
 
 Enter the ethereum address to which you plan to receive the airdrop:
 ''')
-    
+
     if not Web3.is_address(ethereumAddress):
         error("You entered an incorrect Ethereum address")
 
@@ -60,8 +68,8 @@ def choose_ssh_key():
             print(key)
 
     sshKeyPath = input(
-'''
-Now the script needs your ssh key to generate proof. Please, enter path for github SSH key: 
+        '''
+Now the script needs your ssh key to generate proof. Please, enter path for github SSH key:
 ''')
     pubKeyPath = sshKeyPath + ".pub"
 
@@ -70,7 +78,8 @@ Now the script needs your ssh key to generate proof. Please, enter path for gith
     elif not is_ssh_key(sshKeyPath):
         error("Specified file is not a SSH private key")
     elif not os.path.isfile(pubKeyPath) or not os.path.exists(pubKeyPath):
-        error(f"SSH public key ({pubKeyPath}) does not exist in current directory")
+        error(
+            f"SSH public key ({pubKeyPath}) does not exist in current directory")
 
     pubKey = ""
     with open(pubKeyPath, 'r') as pubKeyFile:
@@ -89,12 +98,17 @@ def is_ssh_key(path):
 
 
 def decrypt_temp_eth_account(sshPubKey, sshPrivKey, username, metadata):
-    if not sshPubKey in metadata.encryptedKeys[username]:
+    if sshPubKey not in metadata.encryptedKeys[username]:
         error("Specified SSH key is not eligible for claiming. Only RSA and Ed25519 keys are supported for proof generation.")
 
     data = metadata.encryptedKeys[username][sshPubKey]
-    result = subprocess.run(["age", "--decrypt", "--identity",
-                            sshPrivKey], capture_output=True, input=data.encode())
+    result = subprocess.run(["age",
+                             "--decrypt",
+                             "--identity",
+                             sshPrivKey],
+                            capture_output=True,
+                            input=data.encode(),
+                            env=env)
     if result.returncode != 0:
         raise OSError(result.stderr)
 
@@ -103,7 +117,7 @@ def decrypt_temp_eth_account(sshPubKey, sshPrivKey, username, metadata):
 
 def get_merkle_proof(metadata, tempETHAccount):
     address = tempETHAccount.address.lower()
-    if not address in metadata.addresses:
+    if address not in metadata.addresses:
         raise ValueError("Invalid temp address")
 
     tree = MerkleTree(metadata.addresses)
@@ -117,7 +131,7 @@ def main():
 
     print('''
 Welcome to the proof generation script for Fluence Developer Reward Airdrop.
-5% of the FLT supply is allocated to ~110,000 developers who contributed into open source web3 repositories during last year. 
+5% of the FLT supply is allocated to ~110,000 developers who contributed into open source web3 repositories during last year.
 Public keys of selected Github accounts were added into a smart contract on Ethereum. Claim your allocation and help us build the decentralized internet together!
 
 Check if you are eligible and proceed with claiming
