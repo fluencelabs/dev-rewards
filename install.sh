@@ -49,7 +49,8 @@ setup() {
 
   # move all executables to BIN_DIR
   [[ ! -d "${BIN_DIR}" ]] && mkdir "${BIN_DIR}" -p
-  find "${TEMP_DIR}" -type f -executable ! -name "*.sh" -exec chmod +x {} \; -exec mv {} "${BIN_DIR}" \;
+  find "${TEMP_DIR}" -type f -exec file {} + | grep 'executable' | grep -v 'shell script' | cut -d: -f1 | xargs -I {} mv {} "${BIN_DIR}"
+  chmod +x "${BIN_DIR}"/*
 }
 
 case "$OS" in
