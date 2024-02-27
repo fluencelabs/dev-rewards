@@ -46,20 +46,29 @@ AGE_STDERR="$WORK_DIR/age.stderr"
 
 mkdir -p $WORK_DIR
 
+METADATA_BIN="metadata.bin"
 # $# is the number of arguments
-if [ $# -gt 2 ]; then
+if [ $# -gt 1 ]; then
     GITHUB_USERNAME="$1"
     ETHEREUM_ADDRESS="$2"
-    METADATA_BIN="$3"
 else
-    read -r -p "Enter your GitHub username: " GITHUB_USERNAME
-    read -r -p "Enter your Ethereum address to claim tokens: " ETHEREUM_ADDRESS
-    read -r -p "Enter metadata path (metadata.bin): " METADATA_BIN
-
     if [ ! -f "$METADATA_BIN" ]; then
         echo "$METADATA_BIN doesn't exist"
         exit 1
     fi
+
+    printf "\nWelcome to the proof generation script for Fluence Developer Reward Airdrop."
+    printf "\n5% of the FLT supply is allocated to ~110,000 developers who contributed into open source web3 repositories during last year."
+    printf "\nPublic keys of selected Github accounts were added into a smart contract on Ethereum. Claim your allocation and help us build the decentralized internet together!"
+    printf "\n"
+    printf "\nCheck if you are eligible and proceed with claiming"
+
+    read -r -p "Enter your github username so we can check if you are participating in the airdrop: " GITHUB_USERNAME
+
+    printf "\nEthereum wallet address is necessary to generate a proof that you will send through our web page."
+    printf "\n\033[33mImportant notice: you need to make a claim transaction from the entered address!\033[0m\n\n"
+
+    read -r -p "Enter the ethereum address to which you plan to receive the airdrop: " ETHEREUM_ADDRESS
 
     STR_LENGTH=$(echo "$ETHEREUM_ADDRESS" | sed -e 's/^0x//' | awk '{ print length }')
     if [ "$STR_LENGTH" -ne 40 ]; then
@@ -74,8 +83,8 @@ else
 fi
 
 KEY_ARG_PATH=''
-if [ $# -gt 3 ]; then
-    KEY_ARG_PATH="$4"
+if [ $# -gt 2 ]; then
+    KEY_ARG_PATH="$3"
 fi
 
 ENCRYPTED_KEYS=()
@@ -88,7 +97,7 @@ if [ ${#ENCRYPTED_KEYS[@]} -gt 1 ]; then
 elif [ ${#ENCRYPTED_KEYS[@]} -gt 0 ]; then
     echo "Found an encrypted key for your GitHub username"
 else
-    echo "Haven't found any keys for GitHub username '$GITHUB_USERNAME'"
+    echo "This'$GITHUB_USERNAME' Github account is not eligible for claiming"
     exit 1
 fi
 
@@ -96,7 +105,7 @@ printf "\n\tNOTE: your SSH key is used ONLY LOCALLY to decrypt a message and gen
 printf "\n\tScript will explicitly ask your consent before using the key."
 printf "\n\tIf you have any technical issues, take a look at $OPENSSL_STDERR and $AGE_STDERR files and report to https://fluence.chat \n\n"
 
-printf "Which SSH key to use for decryption?\n"
+printf "Now the script needs your ssh key to generate proof. \n"
 
 while true; do
     if [ -n "$KEY_ARG_PATH" ] && [ -f "$KEY_ARG_PATH" ]; then
@@ -117,11 +126,11 @@ while true; do
         fi
 
         if ! [ -f "$KEY_PATH" ]; then
-            echo "$KEY_PATH isn't a regular file or doesn't exist"
+            echo "Specified $KEY_PATH  file does not exits or not a SSH private key"
             continue
         fi
 
-        read -p "Will use SSH key to decrypt data. Press enter to proceed. "
+        read -p "Will use SSH key to generate proof data. Press enter to proceed. "
         printf "\n"
     fi
 

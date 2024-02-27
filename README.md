@@ -10,9 +10,9 @@
 
 > `docker run -it -v ~/.ssh:/root/.ssh dev-reward-script`
 
-    If your ssh key in different directories then replace {dir_path_for_your_ssh_keys} to your directory:
+If your ssh key in different directories then replace {dir_path_for_your_ssh_keys} to your directory:
 
-> `docker run -it -v /{dir_path_for_your_ssh_keys}:/{dir_path_for_your_ssh_keys} dev-reward-script`
+> `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
 
 2. Run script if your ssh keys in ~/.ssh
 
