@@ -32,7 +32,7 @@
 
 2. Install dependencies
 
-   > `./install_for_sh.sh`
+   > `./install_for_py.sh`
    
    > `python3 -m venv claim-venv`
 
