@@ -14,7 +14,7 @@
 
    > `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
 
-# Generate proof (local python script)
+# Generate proof (local sh script)
 
 1. Install cargo
 
@@ -28,7 +28,7 @@
 
    > `./proof-sh/proof.sh`
 
-# Generate proof (local sh script)
+# Generate proof (local python script)
 
 1. Install python
 
