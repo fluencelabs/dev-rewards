@@ -1,24 +1,20 @@
 # Fluence Developer Rewards
 
-# Get proof for web (docker)
+# Generate proof (docker)
 
 1. Build docke image
 
    > `docker build -t dev-reward-script .`
 
-2. If your ssh keys in ~/.ssh then run script:
+2. If your ssh keys are in ~/.ssh, run the script:
 
-> `docker run -it -v ~/.ssh:/root/.ssh dev-reward-script`
+   > `docker run -it -v ~/.ssh:/root/.ssh dev-reward-script`
 
-If your ssh key in different directories then replace {dir_path_for_your_ssh_keys} to your directory:
+   If your ssh keys are in other directories, replace {dir_path_for_your_ssh_keys} with your directory path:
 
-> `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
+   > `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
 
-2. Run script if your ssh keys in ~/.ssh
-
-3. Enter gihub name, receiving wallet address, and `/ssh-key/{your_ssh_key}`
-
-# Get proof for web (local script)
+# Generate proof (local script)
 
 1. Install cargo
 
@@ -30,10 +26,16 @@ If your ssh key in different directories then replace {dir_path_for_your_ssh_key
 
 3. Install other dependencies
 
-   > `./install_utils.sh`
+   > `./install.sh`
 
-4. Run python script
+4. Run python script or bash
 
-   > `pip install -r python/requirements.txt --require-hashes`
+   For python:
+
+   > `pip install -r python/requirements.txt`
 
    > `python3 python/proof.py metadata.json`
+
+   For bash:
+
+   > `./proof-sh/proof.sh`
