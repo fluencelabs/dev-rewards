@@ -10,7 +10,8 @@
 
    > `docker run -it -v ~/.ssh:/root/.ssh dev-reward-script`
 
-   If your ssh keys are in other directories, replace {dir_path_for_your_ssh_keys} with your directory path:
+   If your ssh keys are in other directories, replace
+   {dir_path_for_your_ssh_keys} with your directory path:
 
    > `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
 
@@ -18,7 +19,7 @@
 
 1. Install dependencies
 
-   > `./install_for_sh.sh`
+   > `./install.sh`
 
 2. Run the script
 
@@ -32,8 +33,8 @@
 
 2. Install dependencies
 
-   > `./install_for_py.sh`
-   
+   > `./install.sh`
+
    > `python3 -m venv claim-venv`
 
    > `source claim-venv/bin/activate`

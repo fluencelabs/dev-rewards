@@ -13,8 +13,7 @@ check_program_in_path() {
   program="${1}"
   if ! type -p "${program}" &>/dev/null; then
       printf '%s\n' "error: ${program} is not installed."
-      printf '%s\n' "You should run install script first"
-      printf '%s\n' "or use your package manager to install it."
+      printf '%s\n' "Use your package manager to install it."
       exit 1
   fi
 }
@@ -38,7 +37,7 @@ setup() {
   tar xf "${TEMP_DIR}/${name}.tar.gz" -C "${TEMP_DIR}"
 
   # move all executables to BIN_DIR
-  mkdir "${BIN_DIR}" -p
+  [[ ! -d "${BIN_DIR}" ]] && mkdir "${BIN_DIR}" -p
   find "${TEMP_DIR}" -type f -exec file {} + | grep 'executable' | grep -v 'shell script' | cut -d: -f1 | xargs -I {} mv {} "${BIN_DIR}"
 }
 

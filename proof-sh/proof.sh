@@ -23,7 +23,7 @@ check_program_in_path() {
   if ! type -p "${program}" &>/dev/null; then
       printf '%s\n' "error: ${program} is not installed."
       printf '%s\n' "You should run install script first"
-      printf '%s\n' "or use your package manager to instal it."
+      printf '%s\n' "or use your package manager to install it."
       exit 1
   fi
 }
