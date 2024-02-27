@@ -6,7 +6,24 @@ TEMP_DIR="$(mktemp -d)"
 OS="$(uname -s)-$(uname -m)"
 
 # cleanup on exit
-# trap 'cleanup' EXIT INT TERM
+trap 'cleanup' EXIT INT TERM
+
+# check_program_in_path "program"
+check_program_in_path() {
+  program="${1}"
+  if ! type -p "${program}" &>/dev/null; then
+      printf '%s\n' "error: ${program} is not installed."
+      printf '%s\n' "You should run install script first"
+      printf '%s\n' "or use your package manager to instal it."
+      exit 1
+  fi
+}
+
+# check that everything installed
+PATH="${PATH}:./bin"
+for i in curl tar; do
+  check_program_in_path $i
+done
 
 cleanup() {
   rm -r ${TEMP_DIR}
@@ -48,4 +65,9 @@ setup age "${AGE_URL}"
 setup sha3sum "${SHA3SUM_URL}"
 
 echo "Downloading metadata file"
-curl --progress-bar -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
+if [[ -f metadata.bin ]]; then
+  echo "Metadata file already exist"
+  exit 0
+else
+  curl --progress-bar -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
+fi
