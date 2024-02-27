@@ -14,28 +14,32 @@
 
    > `docker run -it -v /{dir_path_for_your_ssh_keys}:/root/.ssh dev-reward-script`
 
-# Generate proof (local script)
+# Generate proof (local python script)
 
 1. Install cargo
 
    > https://doc.rust-lang.org/cargo/getting-started/installation.html
 
-2. Install python
+2. Install dependencies
+
+   > `./install_for_sh.sh`
+
+3. Run the script
+
+   > `./proof-sh/proof.sh`
+
+# Generate proof (local sh script)
+
+1. Install python
 
    > https://www.python.org/downloads/
 
-3. Install other dependencies
+2. Install dependencies
 
-   > `./install.sh`
-
-4. Run python script or bash
-
-   For python:
+   > `./install_for_sh.sh`
 
    > `pip install -r python/requirements.txt`
 
-   > `python3 python/proof.py metadata.json`
+3. Run the script
 
-   For bash:
-
-   > `./proof-sh/proof.sh`
+   > `python3 python/proof.py`
