@@ -38,7 +38,7 @@
 
    > `./install_for_sh.sh`
 
-   > `pip install -r python/requirements.txt`
+   > `pip3 install -r python/requirements.txt`
 
 3. Run the script
 
