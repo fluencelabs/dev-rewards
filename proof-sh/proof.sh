@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 
-# TODO: check age is installed
-# TODO: check base64 is installed
-# TODO: check sha3sum is installed via cargo
 # TODO: what about openssl versions? maybe use python for signing?
 # TODO: tell user how to install utilities
 
@@ -20,7 +17,24 @@ set -o errexit -o nounset -o pipefail
 
 trap 'echo GOT IT ; exit 0' SIGTERM
 
+# check_program_in_path "program"
+check_program_in_path() {
+  program="${1}"
+  if ! type -p "${program}" &>/dev/null; then
+      printf '%s\n' "error: ${program} is not installed."
+      printf '%s\n' "You should run install script first"
+      printf '%s\n' "or use your package manager to instal it."
+      exit 1
+  fi
+}
+
 # while true; do :; done
+
+# check that everything installed
+PATH="${PATH}:./bin"
+for i in age base64 sha3sum; do
+  check_program_in_path $i
+done
 
 SSH_KEYS_DIR="$HOME/.ssh"
 

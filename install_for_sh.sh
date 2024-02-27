@@ -1,26 +1,51 @@
 #!/usr/bin/env bash
 set -o errexit -o nounset -o pipefail
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SHA3SUM_URL="https://gitlab.com/kurdy/sha3sum/uploads/47a60658d30743fba6ea6dd99c48da98/sha3sum-x86_64-AppleDarwin-1.1.0.tar.gz"
-    if [[ $(uname -m) == 'arm64' ]]; then
-        AGE_URL="https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-darwin-arm64.tar.gz"
-    else
+BIN_DIR="./bin"
+TEMP_DIR="$(mktemp -d)"
+OS="$(uname -s)-$(uname -m)"
+
+# cleanup on exit
+# trap 'cleanup' EXIT INT TERM
+
+cleanup() {
+  rm -r ${TEMP_DIR}
+}
+
+# setup "name" "url"
+setup() {
+  name="$1"
+  url="$2"
+  echo "Downloading ${name} from ${url}"
+  curl --progress-bar -L -S -o "${TEMP_DIR}/${name}.tar.gz" "${url}"
+  tar xf "${TEMP_DIR}/${name}.tar.gz" -C "${TEMP_DIR}"
+
+  # move all executables to BIN_DIR
+  mkdir "${BIN_DIR}" -p
+  find "${TEMP_DIR}" -type f -exec file {} + | grep 'executable' | grep -v 'shell script' | cut -d: -f1 | xargs -I {} mv {} "${BIN_DIR}"
+}
+
+case "$OS" in
+    Linux-x86_64)
+        SHA3SUM_URL="https://gitlab.com/kurdy/sha3sum/uploads/95b6ec553428e3940b3841fc259d02d4/sha3sum-x86_64_Linux-1.1.0.tar.gz"
+        AGE_URL="https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-linux-amd64.tar.gz"
+        ;;
+    Darwin-x86_64)
+        SHA3SUM_URL="https://gitlab.com/kurdy/sha3sum/uploads/47a60658d30743fba6ea6dd99c48da98/sha3sum-x86_64-AppleDarwin-1.1.0.tar.gz"
         AGE_URL="https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-darwin-amd64.tar.gz"
-    fi
-else
-    SHA3SUM_URL="https://gitlab.com/kurdy/sha3sum/uploads/95b6ec553428e3940b3841fc259d02d4/sha3sum-x86_64_Linux-1.1.0.tar.gz"
-    AGE_URL="https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-linux-amd64.tar.gz"
-fi
+        ;;
+    Darwin-arm64)
+        SHA3SUM_URL="https://gitlab.com/kurdy/sha3sum/uploads/47a60658d30743fba6ea6dd99c48da98/sha3sum-x86_64-AppleDarwin-1.1.0.tar.gz"
+        AGE_URL="https://github.com/FiloSottile/age/releases/download/v1.1.1/age-v1.1.1-darwin-arm64.tar.gz"
+        ;;
+    *)
+        echo "Error: Unsupported OS ${OS}"
+        exit 1
+        ;;
+esac
 
-BIN_DIR="/usr/local/bin"
-curl -Lo age.tar.gz $AGE_URL
-curl -Lo sha3sum.tar.gz $SHA3SUM_URL
-tar xf age.tar.gz
-tar xf sha3sum.tar.gz
-chmod +x sha3sum
-sudo mv age/age age/age-keygen sha3sum $BIN_DIR
-rm -f age.tar.gz sha3sum.tar.gz
-rm -rf age sha3sum sha3sum.hash
+setup age "${AGE_URL}"
+setup sha3sum "${SHA3SUM_URL}"
 
-curl -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
+echo "Downloading metadata file"
+curl --progress-bar -o metadata.bin https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.bin
