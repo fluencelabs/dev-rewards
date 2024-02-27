@@ -37,7 +37,7 @@ setup() {
   tar xf "${TEMP_DIR}/${name}.tar.gz" -C "${TEMP_DIR}"
 
   # move all executables to BIN_DIR
-  mkdir "${BIN_DIR}" -p
+  [[ ! -d "${BIN_DIR}" ]] && mkdir "${BIN_DIR}" -p
   find "${TEMP_DIR}" -type f -exec file {} + | grep 'executable' | grep -v 'shell script' | cut -d: -f1 | xargs -I {} mv {} "${BIN_DIR}"
 }
 
