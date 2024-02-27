@@ -2,7 +2,7 @@
 
 # Generate proof (docker)
 
-1. Build docke image
+1. Build docker image
 
    > `docker build -t dev-reward-script .`
 
@@ -16,15 +16,11 @@
 
 # Generate proof (local sh script)
 
-1. Install cargo
-
-   > https://doc.rust-lang.org/cargo/getting-started/installation.html
-
-2. Install dependencies
+1. Install dependencies
 
    > `./install_for_sh.sh`
 
-3. Run the script
+2. Run the script
 
    > `./proof-sh/proof.sh`
 
