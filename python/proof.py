@@ -91,6 +91,8 @@ Now the script needs your ssh key to generate proof. Please, enter path for gith
 def is_ssh_key(path):
     if not os.path.isfile(path):
         return False
+    if os.path.basename(path).startswith('.'):
+        return False
 
     with open(path, 'r') as file:
         key = file.read()
