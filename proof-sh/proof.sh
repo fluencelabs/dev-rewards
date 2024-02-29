@@ -102,7 +102,7 @@ if [ $# -gt 2 ]; then
 fi
 
 ENCRYPTED_KEYS=()
-while IFS='' read -r line; do ENCRYPTED_KEYS+=("$line"); done < <(grep "^${GITHUB_USERNAME}," "${METADATA_BIN}" || true)
+while IFS='' read -r line; do ENCRYPTED_KEYS+=("$line"); done < <(grep -i "^${GITHUB_USERNAME}," "${METADATA_BIN}" || true)
 
 # ${#ENCRYPTED_KEYS[@]} -- calculates number of elements in the array
 if [ ${#ENCRYPTED_KEYS[@]} -gt 1 ]; then
