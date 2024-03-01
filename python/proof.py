@@ -13,6 +13,7 @@ from helpers.merkle import MerkleTree
 
 SSH_KEYS_DIR = os.path.join(Path.home(), ".ssh")
 BIN_DIR= os.path.join(os.getcwd(), "./bin")
+IGNORED_SSH_DIR_FILES = ['.DS_Store']
 
 # Set PATH for python to find age
 env = os.environ.copy()
@@ -57,6 +58,9 @@ def choose_ssh_key():
 
     sshKeys = []
     for f in files:
+        if f in IGNORED_SSH_DIR_FILES:
+            continue
+
         path = os.path.join(SSH_KEYS_DIR, f)
         if not is_ssh_key(path):
             continue
