@@ -89,7 +89,7 @@ Now the script needs your ssh key to generate proof. Please, enter path for gith
     with open(pubKeyPath, 'r') as pubKeyFile:
         pubKey = " ".join(pubKeyFile.read().split(" ")[0:2])
 
-    return pubKey, sshKeyPath
+    return pubKey.strip(), sshKeyPath
 
 
 def is_ssh_key(path):
