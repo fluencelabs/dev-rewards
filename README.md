@@ -48,7 +48,7 @@
 # Notes
 
 If you are using the `Windows` operating system:
-1. `Docker` is only way to generate proof.
+1. `Docker` is the only way to generate proof.
 2. Use `Windows` path separators in commands.
 
 ```bash
