@@ -44,3 +44,18 @@
 3. Run the script
 
    > `python3 python/proof.py`
+
+# Notes
+
+If you are using the `Windows` operating system:
+1. `Docker` is only way to generate proof.
+2. Use `Windows` path separators in commands.
+
+```bash
+# For example
+docker run -it --network none -v C:\Users\YOU\.ssh:/root/.ssh:ro dev-reward-script
+```
+
+
+
+
