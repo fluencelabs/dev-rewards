@@ -55,7 +55,3 @@ If you are using the `Windows` operating system:
 # For example
 docker run -it --network none -v C:\Users\YOU\.ssh:/root/.ssh:ro dev-reward-script
 ```
-
-
-
-
