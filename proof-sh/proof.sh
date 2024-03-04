@@ -172,8 +172,9 @@ while true; do
         break
     else
         echo "Couldn't decrypt with that SSH key, please choose another one."
-        echo "Possible cause is: "
-        cat $OPENSSL_STDERR
+        echo "Possible causes are:"
+        echo "You have specified the file which doesn't contain valid private key."
+        echo "Your private key doesn't match your public key in GitHub. It could happen if you've changed local ssh key recently."
     fi
 done
 
