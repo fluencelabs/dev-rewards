@@ -14,7 +14,7 @@ The following can be done in a Docker container for additional isolation, includ
 6. `grep '^githubusername,' metadata.bin (if no output, you are not eligible)
 7. Take one of the output lines, minus 'githubusername,' at the begining, this is your encrypted blob in hex
 8. `echo <encrypted blob in hex> | xxd -r -p -c 1000 > enc.bin` to convert the hex to binary
-9.  If running in Docker, copy in a copy of your GitHub private key file to a local location (e.g. `docker cp <container id>:/path/to/private/key/file /path/to/local/private/key/file`, or just use copy/paste in your terminal to a file)
+9.  If running in Docker, copy your private ssh key inside the docker (e.g. `docker cp path/to/local/private/key/file <container id>:/path/to/private/key/file`, or just use copy/paste in your terminal to a file)
 10.  `~/go/bin/age --decrypt --identity <path to private key file> --output dec.bin enc.bin` to decrypt the binary file
 11. The file `dec.bin` has one line with 4 comma-separated entries, extract each of them to a variable:
     - `USER_ID=$(cat dec.bin | cut -d, -f1)`
