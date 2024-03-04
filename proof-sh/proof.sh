@@ -175,6 +175,8 @@ while true; do
         echo "Possible causes are:"
         echo "You have specified the file which doesn't contain valid private key."
         echo "Your private key doesn't match your public key in GitHub. It could happen if you've changed local ssh key recently."
+        echo "Internal ape error:"
+        cat $OPENSSL_STDERR
     fi
 done
 
