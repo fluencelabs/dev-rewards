@@ -103,7 +103,7 @@ def is_ssh_key(path):
 
 def decrypt_temp_eth_account(sshPubKey, sshPrivKey, username, metadata):
     if sshPubKey not in metadata.encryptedKeys[username]:
-        error("Specified SSH key is not eligible for claiming. Only RSA and Ed25519 keys are supported for proof generation.")
+        error("Specified SSH key is not eligible for claiming. Only RSA and Ed25519 keys added before our Github snapshot are supported for proof generation.")
 
     data = metadata.encryptedKeys[username][sshPubKey]
     result = subprocess.run(["age",
