@@ -31,7 +31,7 @@ check_program_in_path() {
 # while true; do :; done
 
 # check that everything installed
-PATH="${PATH}:./bin"
+PATH="./bin:${PATH}"
 for i in age base64 sha3sum; do
   check_program_in_path $i
 done
