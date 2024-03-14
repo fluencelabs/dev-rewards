@@ -1,6 +1,10 @@
 # Fluence Developer Rewards
 
-# Generate proof (docker)
+This repo allows the one to generate proof signature for Fluence dev reward claiming.
+
+The methods for generating signature are described below:
+
+## Generate proof in docker
 
 1. Build docker image
 
@@ -15,7 +19,7 @@
 
    > `docker run -it --rm --network none -v /{dir_path_for_your_ssh_keys}:/root/.ssh:ro dev-reward-script`
 
-# Generate proof (local sh script)
+## Generate proof via local sh script
 
 1. Install dependencies
 
@@ -25,7 +29,7 @@
 
    > `./proof-sh/proof.sh`
 
-# Generate proof (local python script)
+## Generate proof via local python script
 
 1. Install python
 
@@ -44,3 +48,8 @@
 3. Run the script
 
    > `python3 python/proof.py`
+
+## Notes:
+
+Also check out [paranoid](./MANUAL_INSTRUCTIONS.md) instruction
+in case you have any security concerns regarding the methods above.
