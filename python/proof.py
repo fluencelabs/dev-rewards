@@ -97,8 +97,12 @@ def is_ssh_key(path):
         return False
 
     with open(path, 'r') as file:
-        key = file.read()
-        return key.startswith("-----BEGIN")
+        try:
+            key = file.read()
+            return key.startswith("-----BEGIN")
+        except Exception as e:
+            print("Couldn't read the file:", file, "Reason:", e)
+            return False
 
 
 def decrypt_temp_eth_account(sshPubKey, sshPrivKey, username, metadata):
