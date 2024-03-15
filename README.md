@@ -49,6 +49,22 @@ The methods for generating signature are described below:
 
    > `python3 python/proof.py`
 
+## Generate proof through a website
+
+1. Enter the `web` directory
+
+    > cd web
+
+2. Download the metadata.json file
+
+    > curl https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.json > metadata.json
+
+3. Spin up an HTTP server
+
+    > python3 -m http.server
+
+4. Open `http://127.0.0.1:8000` in your browser and follow the instructions
+
 ## Notes:
 
 Also check out [paranoid](./MANUAL_INSTRUCTIONS.md) instruction
