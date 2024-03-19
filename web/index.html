@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.6.0/dist/web3.min.js"
+        integrity="sha512-DTSUnB4owPx74KyQnBL+XPSCI8elZpjR0dnHmSnHkmTirIzI/9ANYxuDZ87TVsQ1E+8rQB/V4EAaUfKN+h42+w=="
+        crossorigin="anonymous"></script>
+
+
+    <title>Fluence Token Proof Generator</title>
+    <style>
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .outer {
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            display: flex;
+        }
+
+        .container {
+            margin: auto;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 320px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            width: 320px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        .progress-container {
+            width: 320px;
+            margin: 20px auto;
+            border: 1px solid gray;
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .popup {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            width: 50%;
+            margin: 10px auto;
+        }
+
+        .code-container {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+
+        .right-button {
+            text-align: right;
+            padding-right: 5px;
+            padding-bottom: 5px;
+        }
+
+        .right-button button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .right-button button:hover {
+            background-color: #45a049;
+
+        }
+
+        .right-button button.close {
+            background-color: red;
+        }
+
+        .right-button button.close:hover {
+            background-color: #aa0000;
+        }
+
+        code {
+            word-wrap: break-word;
+            white-space: normal;
+        }
+
+        .popup input[type=text] {
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="outer">
+        <div class="container">
+            <form action="#">
+                <input type="text" id="username" placeholder="GitHub username">
+                <br>
+                <input type="submit" id="submit" value="Check Eligibility">
+            </form>
+            <div class="progress-container" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <script>
+                let data = null;
+                const web3 = new Web3();
+
+                const copyCode = e => {
+                    var codeElement = e.target.parentElement.parentElement.querySelector('code');
+                    var range = document.createRange();
+                    range.selectNode(codeElement);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    alert('Copied!');
+                }
+
+                const arraySmaller = (a, b) => {
+                    for (let i = 0; i < a.length; i++) {
+                        if (a[i] < b[i]) {
+                            return true;
+                        }
+                        if (b[i] < a[i]) {
+                            return false;
+                        }
+                    }
+                    return false;
+                }
+
+                async function storeInIndexedDB(data, dbName, storeName, key) {
+                    // Open IndexedDB
+                    const dbOpenRequest = indexedDB.open(dbName);
+
+                    return new Promise((resolve, reject) => {
+                        dbOpenRequest.onerror = function (event) {
+                            reject("Error opening IndexedDB database");
+                        };
+
+                        dbOpenRequest.onsuccess = async function (event) {
+                            const db = event.target.result;
+
+                            // Create object store
+                            const transaction = db.transaction([storeName], "readwrite");
+                            const objectStore = transaction.objectStore(storeName);
+
+                            // Store the Uint8Array
+                            try {
+                                await new Promise((resolve, reject) => {
+                                    const putRequest = objectStore.put(data, key);
+                                    putRequest.onsuccess = resolve;
+                                    putRequest.onerror = reject;
+                                });
+                                resolve("Data stored successfully");
+                            } catch (error) {
+                                reject("Error storing data: " + error.message);
+                            }
+                        };
+
+                        dbOpenRequest.onupgradeneeded = function (event) {
+                            const db = event.target.result;
+
+                            // Create object store if not exists
+                            if (!db.objectStoreNames.contains(storeName)) {
+                                db.createObjectStore(storeName);
+                            }
+                        };
+                    });
+                }
+
+                async function getFromIndexedDB(dbName, storeName, key) {
+                    // Open IndexedDB
+                    const dbOpenRequest = indexedDB.open(dbName);
+
+                    return new Promise((resolve, reject) => {
+                        dbOpenRequest.onerror = function (event) {
+                            reject("Error opening IndexedDB database");
+                        };
+
+                        dbOpenRequest.onsuccess = async function (event) {
+                            const db = event.target.result;
+
+                            const transaction = db.transaction([storeName], "readonly");
+                            const objectStore = transaction.objectStore(storeName);
+
+                            try {
+                                const getRequest = objectStore.get(key);
+                                getRequest.onsuccess = function (event) {
+                                    const result = event.target.result;
+                                    if (result) {
+                                        resolve(result);
+                                    } else {
+                                        reject("Data not found in IndexedDB");
+                                    }
+                                };
+                                getRequest.onerror = function (event) {
+                                    reject("Error fetching data from IndexedDB");
+                                };
+                            } catch (error) {
+                                reject("Error fetching data: " + error.message);
+                            }
+                        };
+
+                        dbOpenRequest.onupgradeneeded = function (event) {
+                            // Handle database upgrade if necessary
+                        };
+                    });
+                }
+
+
+                class MerkleTree {
+                    constructor(accounts) {
+                        this._tree = [];
+                        this._total_depth = 0;
+                        const nodes = this._createLeafs(accounts);
+                        this._genTree(nodes);
+                    }
+
+                    _genTree(nodes) {
+                        this._tree.push(nodes);
+                        this._total_depth = Math.ceil(Math.log2(nodes.length));
+
+                        while (nodes.length > 1) {
+                            nodes = this._genPrevNodes(nodes);
+                            this._tree.push(nodes);
+                        }
+                    }
+
+                    _genPrevNodes(nodes) {
+                        const newNodes = [];
+                        const length = nodes.length;
+
+                        for (let i = 0; i < length; i += 2) {
+                            if (length % 2 !== 0 && i + 1 >= length) {
+                                newNodes.push(nodes[i]);
+                                break;
+                            }
+
+                            const a = nodes[i];
+                            const b = nodes[i + 1];
+
+                            if (arraySmaller(a, b)) {
+                                let result = new Uint8Array(64);
+                                result.set(a);
+                                result.set(b, 32);
+                                newNodes.push(web3.utils.hexToBytes(web3.utils.sha3(result)));
+                            } else {
+                                let result = new Uint8Array(64);
+                                result.set(b);
+                                result.set(a, 32);
+                                newNodes.push(web3.utils.hexToBytes(web3.utils.sha3(result)));
+                            }
+                        }
+
+                        return newNodes;
+                    }
+
+                    _createLeafs(accounts) {
+                        return accounts.map((account, i) => {
+                            return web3.utils.hexToBytes(web3.utils.soliditySha3(
+                                {
+                                    type: "uint32",
+                                    value: i
+                                },
+                                {
+                                    type: "bytes20",
+                                    value: account
+                                }));
+                        });
+                    }
+
+                    getProof(index) {
+                        const proof = [];
+                        for (let nodes of this._tree) {
+                            const length = nodes.length;
+                            if (length === 1) break;
+
+                            if (length % 2 !== 0 && index === length - 1) {
+                                index = Math.floor(index / 2);
+                                continue;
+                            }
+
+                            if (index % 2 === 0) {
+                                proof.push(nodes[index + 1]);
+                            } else {
+                                proof.push(nodes[index - 1]);
+                            }
+
+                            index = Math.floor(index / 2);
+                        }
+                        return proof.map(node => web3.utils.bytesToHex(node));
+                    }
+
+                    getRoot() {
+                        return this._tree[this._total_depth][0];
+                    }
+                }
+
+                const generateProof = (popup, address, privateKey) => {
+                    popup.innerHTML = `
+                <div>Congratulations! This is your proof which you can supply to <a href="https://claim.fluence.network/">claim.fluence.network</a>:</div>
+                <div class="code-container">
+                    <pre><code class="proof"></code></pre>
+                    <div class="right-button"><button onclick="copyCode(event)">Copy</button></div>
+                </div>
+                `;
+
+                    let objs = [...popup.querySelectorAll('.proof')];
+                    let proofElement = objs[objs.length - 1];
+                    let proof = generateProofFromAccount(address, privateKey);
+                    proofElement.textContent = proof;
+                }
+
+                const enterAddress = (popup, privateKey) => {
+                    popup.innerHTML = `
+                <div>Enter the Ethereum address to which you plan to receive the airdrop. You need to make a claim transaction from the entered address!</div>
+                <form style="padding-top: 1em;">
+                    <input type="text" style="width: 100%;" class="ethaddr" placeholder="Ethereum Address" />
+                    <input type="submit" style="width: 100%;" value="Continue" />
+                </form>
+                `;
+
+                    popup.querySelector("form").addEventListener("submit", e => {
+                        e.preventDefault();
+                        let ethAddr = popup.querySelector(".ethaddr").value;
+                        if (!ethAddr.match(/^0x[a-fA-F0-9]{40}$/)) {
+                            alert("Invalid format. Ethereum address must be of format ^0x[a-fA-F0-9]{40}$");
+                            return;
+                        }
+                        generateProof(popup, ethAddr, privateKey);
+                    });
+                };
+
+                const showDecryptionInstructions = (popup, command) => {
+                    popup.innerHTML = `
+                <div>Use the <a href="https://github.com/FiloSottile/age">age</a> tool to decrypt the payload. Replace <tt>&lt;path to private key&gt;</tt> with the path to your private key:</div>
+                <div class="code-container">
+                    <pre><code class="command"></code></pre>
+                    <div class="right-button"><button onclick="copyCode(event)">Copy</button></div>
+                </div>
+                <form>
+                    <input type="text" style="width: 100%;" class="privkey" placeholder="Decrypted payload" />
+                    <input type="submit" style="width: 100%;" value="Continue" />
+                </form>
+                `;
+
+                    let objs = [...popup.querySelectorAll('.command')];
+                    let commandElement = objs[objs.length - 1];
+                    commandElement.textContent = command;
+
+                    popup.querySelector("form").addEventListener("submit", e => {
+                        e.preventDefault();
+                        let privKey = popup.querySelector(".privkey").value;
+                        if (!privKey.match(/^0x[a-fA-F0-9]{64}$/)) {
+                            alert("Invalid format. Decrypted payload must be of format ^0x[a-fA-F0-9]{64}$");
+                            return;
+                        }
+                        enterAddress(popup, privKey);
+                    });
+                };
+
+                const showInstructions = pubKeysAndCommands => {
+                    let overlay = document.createElement("div");
+                    overlay.className = "overlay";
+
+                    let popup = document.createElement("div");
+                    let close = document.createElement("div");
+                    close.innerHTML = '<div class="right-button"><button class="close">Close</button></div>';
+                    popup.appendChild(close);
+                    close.querySelector('button').addEventListener("click", () => {
+                        document.body.removeChild(overlay);
+                    });
+
+                    popup.className = "popup";
+
+                    overlay.appendChild(popup);
+
+                    let popupInner = document.createElement("div");
+                    popup.appendChild(popupInner);
+                    popup = popupInner;
+
+                    document.body.appendChild(overlay);
+
+                    let innerHTML = `
+                <h2>The account is eligible for receiving the airdrop!</h2>
+                <div>The following SSH public keys have been included:</div>
+                `;
+                    for (let [pubKey, command] of pubKeysAndCommands) {
+                        innerHTML += `
+                    <div class="code-container">
+                        <pre><code class="key"></code></pre>
+                        <div class="right-button"><button class="use-key">Use this key</button></div>
+                    </div>`;
+                    }
+
+                    popup.innerHTML = innerHTML;
+
+                    let i = 0;
+                    for (let [pubKey, command] of pubKeysAndCommands) {
+                        let pubKeyElement = [...popup.querySelectorAll('.key')][i];
+                        pubKeyElement.textContent = pubKey;
+
+                        let useKeyElement = [...popup.querySelectorAll('.use-key')][i];
+                        useKeyElement.addEventListener("click", e => showDecryptionInstructions(popup, command));
+
+                        i += 1;
+                    }
+                };
+
+                const generateProofFromAccount = (ethereumAddress, privateKey) => {
+                    let account = web3.eth.accounts.privateKeyToAccount(privateKey);
+
+                    let tempEthAddress = account.address.toLowerCase();
+                    let tree = new MerkleTree(data.addresses);
+                    let index = data.addresses.indexOf(tempEthAddress);
+                    let proof = tree.getProof(index);
+                    // String replacement for exact Python code behavior
+                    let base64MerkleProof = btoa(JSON.stringify(proof).replace(/","/g, '", "'));
+                    let signature = web3.eth.accounts.sign(ethereumAddress, privateKey).signature;
+
+
+                    return [
+                        index, tempEthAddress, signature, base64MerkleProof
+                    ].join(",");
+                };
+
+                const finish = metadata => {
+                    let username = document.querySelector("#username").value.trim().toLowerCase();
+                    let eligibleUsers = Object.keys(metadata.encryptedKeys).filter(x => x.trim().toLowerCase() == username);
+                    if (eligibleUsers.length != 1) {
+                        alert("User not eligible");
+                        return;
+                    }
+
+                    let userData = metadata.encryptedKeys[eligibleUsers[0]];
+                    let publicKeys = Object.keys(userData);
+                    let result = [];
+                    for (let i = 0; i < publicKeys.length; i++) {
+                        let publicKey = publicKeys[i];
+                        let encrytedFile = userData[publicKey];
+
+                        let encryptedBase64 = btoa(encrytedFile);
+                        let command = 'echo "' + encryptedBase64 + '" | base64 --decode | age --decrypt --identity <path to private key>';
+                        result.push([publicKey, command]);
+                    }
+                    showInstructions(result);
+                }
+
+                window.addEventListener("load", () => {
+                    getFromIndexedDB("metadata", "metadata", "metadata").then(d => {
+                        data = d
+                    });
+                });
+
+                document.querySelector("form").addEventListener("submit", event => {
+                    event.preventDefault();
+
+                    if (data != null) {
+                        finish(data);
+                        return;
+                    }
+
+                    var progressBar = document.getElementById("progressBar");
+                    var progressContainer = document.querySelector(".progress-container");
+                    progressContainer.style.display = "block";
+
+                    fetch("/metadata.json")
+                        .then(response => {
+                            const totalBytes = response.headers.get('content-length');
+                            let loadedBytes = 0;
+
+                            const reader = response.body.getReader();
+
+                            let byteStream = new Uint8Array();
+
+                            const pump = () => {
+                                return reader.read().then(({ value, done }) => {
+                                    if (done) {
+                                        progressBar.style.width = "100%";
+                                        progressContainer.style.display = "none";
+                                        let sha3sum = web3.utils.sha3(byteStream);
+                                        console.log("metadata.json SHA3", sha3sum);
+                                        if (sha3sum != "0x998318b214a74aab65f91bea0459815f899c7e6f279a0a77fb1aa55dbf7f77df") {
+                                            throw new Error("metadata.json integrity violated");
+                                        }
+                                        data = JSON.parse(new TextDecoder().decode(byteStream));
+                                        storeInIndexedDB(data, "metadata", "metadata", "metadata");
+                                        finish(data);
+                                        return;
+                                    }
+                                    loadedBytes += value.length;
+                                    progressBar.style.width = Math.floor((loadedBytes / totalBytes) * 100) + "%";
+                                    const newStream = new Uint8Array(byteStream.length + value.length);
+                                    newStream.set(byteStream);
+                                    newStream.set(value, byteStream.length);
+                                    byteStream = newStream;
+
+                                    return pump();
+                                });
+                            }
+
+                            return pump();
+                        })
+                        .catch(error => {
+                            alert('Error downloading file: ' + error.toString());
+                        });
+                });
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>
