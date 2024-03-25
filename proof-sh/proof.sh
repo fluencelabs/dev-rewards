@@ -188,7 +188,7 @@ PREFIX_HEX=$(echo -n $'\x19Ethereum Signed Message:\n'${LENGTH} | xxd -p)
 DATA_HEX="${PREFIX_HEX}${ETH_ADDR_HEX_ONLY}"
 
 ## '|| true' is needed to work around this bug https://gitlab.com/kurdy/sha3sum/-/issues/2
-HASH=$(echo -n "$DATA_HEX" | xxd -r -p | (sha3sum -a Keccak256 -t || true) | awk -F $'\xC2\xA0' '{ print $1 }')
+HASH=$(echo -n "$DATA_HEX" | xxd -r -p | (sha3sum -a Keccak256 -t || true) | sed 's/[^[:xdigit:]].*//')
 
 ## Write temporary eth key to file in binary format (DER)
 cat "$DECRYPTED_DATA" | cut -d',' -f3 | xxd -r -p -c 118 >"$ETH_KEY_DER"
