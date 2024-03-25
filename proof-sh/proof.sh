@@ -180,7 +180,7 @@ while true; do
     fi
 done
 
-## Prepare real ethereum addres to be hashed and signed
+## Prepare real ethereum address to be hashed and signed
 ETH_ADDR_HEX_ONLY=$(echo -n "$ETHEREUM_ADDRESS" | sed -e 's/^0x//')
 # length of ETH key is always 20 bytes
 LENGTH="20"
