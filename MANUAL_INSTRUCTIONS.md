@@ -23,7 +23,7 @@ The following can be done in a Docker container for additional isolation, includ
 11. Create a DER form of the Eth key: `echo -n $ETH_KEY_SRC | xxd -r -p -c 118 > eth_key.der`
 12. `openssl ec -inform der -in eth_key.der > eth.key`
 13. Prepare a message to sign:
-    - Take your ethereum address _without_ the '0x' prefix.
+    - Take your ethereum address _without_ the '0x' prefix (Note: this is the address you will use to submit the proof onchain, it's not the derived `ETH_ADDR`).
     - `UNSIGNED_MSG="$(echo -n $'\x19Ethereum Signed Message:\n'20 | xxd -p)<your ethereum address without 0x>"`
     - `echo -n "$UNSIGNED_MSG" | xxd -r -p | ~/.cargo/bin/sha3sum -a Keccak256` to get your signed message hash. The first part of this output is your hash, set it as `$HASH`. The short-form of this is (the nbsp separator makes this look odd): `HASH=$(echo -n "$UNSIGNED_MSG" | xxd -r -p | ~/.cargo/bin/sha3sum -a Keccak256 | awk -F $'\xC2\xA0' '{ print $1 }')`
 14. With HASH as the hex output of the signed message hash above, `SIGNATURE_HEX=$(echo $HASH | xxd -r -p | openssl pkeyutl -sign -inkey eth.key | xxd -p -c 72)`
