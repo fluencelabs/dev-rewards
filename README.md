@@ -2,6 +2,8 @@
 
 This repo allows the one to generate proof signature for Fluence dev reward claiming.
 
+> Beware of scam emails, asking you to generate proofs for someone! See #98
+
 The methods for generating signature are described below:
 
 ## Generate proof in docker
