@@ -118,7 +118,8 @@ def decrypt_temp_eth_account(sshPubKey, sshPrivKey, username, metadata):
                             input=data.encode(),
                             env=env)
     if result.returncode != 0:
-        raise OSError(result.stderr)
+        age_stderr = result.stderr.replace('https://filippo.io/age/report', 'https://fluence.chat')
+        raise OSError(age_stderr)
 
     return w3.eth.account.from_key(result.stdout.decode())
 

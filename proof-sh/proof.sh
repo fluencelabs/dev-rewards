@@ -117,7 +117,7 @@ fi
 
 printf "\n\tNOTE: your SSH key is used ONLY LOCALLY to decrypt a message and generate Token Claim Proof."
 printf "\n\tScript will explicitly ask your consent before using the key."
-printf "\n\tIf you have any technical issues, take a look at $OPENSSL_STDERR and $AGE_STDERR files and report to https://fluence.chat \n\n"
+printf "\n\tIf you have any technical issues, take a look at the following logs:\n\t\t$OPENSSL_STDERR\n\t\t$AGE_STDERR\n\treport to https://fluence.chat \n\n"
 
 printf "Now the script needs your ssh key to generate proof. \n"
 
@@ -156,7 +156,7 @@ while true; do
         ENCRYPTED_DATA=$(echo "$encrypted" | cut -d',' -f2)
 
         set +o errexit
-        echo "$ENCRYPTED_DATA" | xxd -r -p -c 1000 | age --decrypt --identity "$KEY_PATH" --output "$DECRYPTED_DATA" 2>$OPENSSL_STDERR
+        echo "$ENCRYPTED_DATA" | xxd -r -p -c 1000 | age --decrypt --identity "$KEY_PATH" --output "$DECRYPTED_DATA" 2>$AGE_STDERR
         exit_code=$?
         set -o errexit
 
@@ -175,8 +175,8 @@ while true; do
         echo "Possible causes are:"
         echo "You have specified the file which doesn't contain valid private key."
         echo "Your private key doesn't match your public key in GitHub. It could happen if you've changed local ssh key recently."
-        echo "Internal ape error:"
-        cat $OPENSSL_STDERR
+        echo "Internal error:"
+        cat $AGE_STDERR | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g'
     fi
 done
 
