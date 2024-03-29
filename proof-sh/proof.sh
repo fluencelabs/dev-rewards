@@ -179,7 +179,7 @@ while true; do
 
         # replace report URL in $AGE_STDERR
         STDERR_TMP="$(mktemp)"
-        cat "$AGE_STDERR" | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g' > $STDERR_TMP
+        cat "$AGE_STDERR" | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g' > "$STDERR_TMP"
         cat "$STDERR_TMP" > "$AGE_STDERR"
 
         # print Age error with replaced report URL
