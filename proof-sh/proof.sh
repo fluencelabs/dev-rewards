@@ -176,11 +176,13 @@ while true; do
         echo "You have specified the file which doesn't contain valid private key."
         echo "Your private key doesn't match your public key in GitHub. It could happen if you've changed local ssh key recently."
         echo "Internal error:"
-        # replace report URL in $AGE_STDERR
 
+        # replace report URL in $AGE_STDERR
         STDERR_TMP="$(mktemp)"
         cat "$AGE_STDERR" | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g' > $STDERR_TMP
         cat "$STDERR_TMP" > "$AGE_STDERR"
+
+        # print Age error with replaced report URL
         cat "$AGE_STDERR"
     fi
 done
