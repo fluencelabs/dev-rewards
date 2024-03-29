@@ -117,7 +117,7 @@ fi
 
 printf "\n\tNOTE: your SSH key is used ONLY LOCALLY to decrypt a message and generate Token Claim Proof."
 printf "\n\tScript will explicitly ask your consent before using the key."
-printf "\n\tIf you have any technical issues, take a look at the following logs:\n\t\t$OPENSSL_STDERR\n\t\t$AGE_STDERR\n\treport to https://fluence.chat \n\n"
+printf "\n\tIf you have any technical issues, take a look at the following logs:\n\t\t$OPENSSL_STDERR\n\t\t$AGE_STDERR\n\tReport any issues to https://fluence.chat \n\n"
 
 printf "Now the script needs your ssh key to generate proof. \n"
 
@@ -176,7 +176,12 @@ while true; do
         echo "You have specified the file which doesn't contain valid private key."
         echo "Your private key doesn't match your public key in GitHub. It could happen if you've changed local ssh key recently."
         echo "Internal error:"
-        cat $AGE_STDERR | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g'
+        # replace report URL in $AGE_STDERR
+
+        STDERR_TMP="$(mktemp)"
+        cat "$AGE_STDERR" | sed -e 's#https://filippo.io/age/report#https://fluence.chat#g' > $STDERR_TMP
+        cat "$STDERR_TMP" > "$AGE_STDERR"
+        cat "$AGE_STDERR"
     fi
 done
 
