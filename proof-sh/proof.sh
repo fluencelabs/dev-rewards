@@ -75,7 +75,7 @@ else
     printf "\n5%% of the FLT supply is allocated to ~110,000 developers who contributed into open source web3 repositories during last year."
     printf "\nPublic keys of selected Github accounts were added into a smart contract on Ethereum. Claim your allocation and help us build the decentralized internet together!"
     printf "\n"
-    printf "\nCheck if you are eligible and proceed with claiming"
+    printf "\nCheck if you are eligible and proceed with claiming.\n"
 
     read -r -p "Enter your github username so we can check if you are participating in the airdrop: " GITHUB_USERNAME
 
