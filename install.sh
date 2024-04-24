@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -o errexit -o nounset -o pipefail
+set -o errexit
+set -o nounset
+set -o pipefail
 
 BIN_DIR="./bin"
 TEMP_DIR="$(mktemp -d)"
