@@ -38,7 +38,11 @@ The methods for generating signature are described below:
 
    > https://www.python.org/downloads/
 
-2. Install dependencies
+2. Download the metadata.json file
+
+    > curl https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.json > metadata.json
+
+3. Install dependencies
 
    > `./install.sh`
 
@@ -48,7 +52,7 @@ The methods for generating signature are described below:
 
    > `pip3 install -r python/requirements.txt`
 
-3. Run the script
+4. Run the script
 
    > `python3 python/proof.py`
 
