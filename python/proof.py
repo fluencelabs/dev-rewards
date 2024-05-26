@@ -136,6 +136,10 @@ def get_merkle_proof(metadata, tempETHAccount):
 
 def main():
     metadataPath = "metadata.json"
+    if not os.pathh.exists(metadataPath):
+        os.system(
+            "curl https://fluence-dao.s3.eu-west-1.amazonaws.com/metadata.json > metadata.json"
+        )
     metadata = parse_metadata(metadataPath)
 
     print('''
